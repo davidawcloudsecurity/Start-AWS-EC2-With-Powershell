@@ -1,0 +1,21 @@
+get-awscredential -listprofiledetail;
+set-defaultawsregion (region); #enter your region where your ec2 is created from aws console
+
+(Get-EC2Instance).Instances | Select-Object InstanceID;
+$instanceid = $instanceid -replace ".*=" -replace "}.*"
+if(!(Get-EC2InstanceStatus -InstanceId $instanceID).InstanceState) {$instanceid | Start-EC2Instance}
+
+$counter = 0
+while(!(Get-EC2InstanceStatus -InstanceId $instanceID).InstanceState)
+{
+Write-Progress -Activity "Checking EC2 State" -Status "$counter% Complete:" -PercentComplete $counter;
+$counter++; start-sleep -s 1
+}
+$Server = (Get-EC2Instance -InstanceID $instanceID).Instances | Select-Object PublicDnsName;
+$Server = $Server -replace ".*=" -replace "}.*";
+$password = '' #enter your password from pem in aws console
+$user = "Administrator" 
+cmdkey /generic:"$Server" /user:"$user" /pass:"$password"
+mstsc /v:"$Server"
+
+# $instanceid | Stop-EC2Instance #if you wish to manually stop your instance
