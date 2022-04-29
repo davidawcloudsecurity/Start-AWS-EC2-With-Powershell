@@ -18,4 +18,6 @@ $user = "Administrator"
 cmdkey /generic:"$Server" /user:"$user" /pass:"$password"
 mstsc /v:"$Server"
 
+#del credential
+cmdkey /list | ForEach-Object{if($_ -like "*Target:*"){cmdkey /del:($_ -replace " ","" -replace "Target:","")}}
 # $instanceid | Stop-EC2Instance #if you wish to manually stop your instance
